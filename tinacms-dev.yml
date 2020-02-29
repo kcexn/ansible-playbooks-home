@@ -23,6 +23,10 @@
     become: yes
     become_user: tinacms
     become_method: su
+  - name: Install git
+    pacman:
+      name: git
+      state: present
 
 
 
