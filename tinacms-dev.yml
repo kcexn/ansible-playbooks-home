@@ -23,9 +23,12 @@
     become: yes
     become_user: tinacms
     become_method: su
-  - name: Install git
+  - name: Install git and net tools and vim
     pacman:
-      name: git
+      name:
+      - git
+      - net-tools
+      - vim
       state: present
 
 
