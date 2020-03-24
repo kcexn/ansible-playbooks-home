@@ -1,0 +1,37 @@
+---
+- hosts: gatsby-dev
+  vars:
+    username: gatsby
+  tasks:
+  - name: update the system
+    pacman:
+      upgrade: yes
+  - name: Add gatsby Group
+    group:
+      name: "{{ username }}"
+      state: present
+  - name: Add gatsby user
+    user:
+      name: "{{ username }}"
+      group: "{{ username }}"
+      comment: gatsby developer
+      shell: /bin/bash
+      password: $1$E75gtyjm$jNDI.LFZ8vMLfOIWfktUC1 #openssl passwd -1
+      state: present
+  - name: install node version manager (nvm)
+    shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
+    args:
+      creates: "/home/{{username}}/.nvm/nvm.sh"
+    become: yes
+    become_user: "{{username}}"
+    become_method: su
+  - name: Install git and net tools and vim
+    pacman:
+      name:
+      - git
+      - net-tools
+      - vim
+      state: present
+
+
+
