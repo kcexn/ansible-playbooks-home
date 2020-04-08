@@ -1,0 +1,31 @@
+---
+- hosts: docker-host
+  vars:
+    username: docker-user
+    hostname: docker-host
+  tasks:
+  - name: update the system
+    pacman:
+      upgrade: yes
+  - name: "Add user {{ username }}"
+    user:
+      name: "{{ username }}"
+      comment: docker developer
+      shell: /bin/bash
+      password: $1$aOWkTvCv$CkVDtAtvlALmxhZ4qywNf0 #openssl passwd -1
+      state: present
+  - name: Install packages
+    pacman:
+      name:
+      - git
+      - net-tools
+      - vim
+      - make
+      - gcc
+      - docker
+      state: present
+  - name: change the hostname
+    command: hostnamectl set-hostname "{{ hostname }}"
+
+
+
