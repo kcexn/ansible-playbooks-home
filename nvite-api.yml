@@ -7,6 +7,7 @@
   - name: update the system
     pacman:
       upgrade: yes
+      update-cache: yes
   - name: Add user group
     group:
       name: "{{ username }}"
@@ -28,6 +29,7 @@
       - vim
       - make
       - gcc
+      - postgresql
       state: present
   - name: change the hostname
     command: hostnamectl set-hostname "{{ hostname }}"
