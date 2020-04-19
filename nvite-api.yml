@@ -1,0 +1,36 @@
+---
+- hosts: nvite-api
+  vars:
+    username: kevin
+    hostname: nvite-api
+  tasks:
+  - name: update the system
+    pacman:
+      upgrade: yes
+  - name: Add user group
+    group:
+      name: "{{ username }}"
+      state: present
+  - name: Add user
+    user:
+      name: "{{ username }}"
+      group: "{{ username }}"
+      comment: developer
+      shell: /bin/bash
+      password: $1$EQqmRycr$l4EudPquzvidaRNSqlw810 #openssl passwd -1
+      state: present
+    become_method: su
+  - name: Install packages
+    pacman:
+      name:
+      - git
+      - net-tools
+      - vim
+      - make
+      - gcc
+      state: present
+  - name: change the hostname
+    command: hostnamectl set-hostname "{{ hostname }}"
+
+
+
