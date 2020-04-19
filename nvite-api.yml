@@ -8,10 +8,12 @@
     pacman:
       upgrade: yes
       update-cache: yes
+
   - name: Add user group
     group:
       name: "{{ username }}"
       state: present
+
   - name: Add user
     user:
       name: "{{ username }}"
@@ -21,6 +23,7 @@
       password: $1$EQqmRycr$l4EudPquzvidaRNSqlw810 #openssl passwd -1
       state: present
     become_method: su
+
   - name: Install packages
     pacman:
       name:
@@ -30,9 +33,66 @@
       - make
       - gcc
       - postgresql
+      - python-pip
+      - wget
+      - sudo
       state: present
+
+  - name: make a development directory for pgAdmin4
+    file:
+      path: /home/kevin/pgAdmin4/
+      state: directory
+      owner: kevin
+      group: kevin
+      mode: '0755'
+
+  - name: Create a virtual environment directory for pgAdmin4
+    command: 'python -m venv pgAdmin4-venv'
+    args:
+      chdir: /home/kevin/pgAdmin4/
+      creates: /home/kevin/pgAdmin4-venv
+
+  - name: Download pgAdmin4 from internet.
+    get_url:
+      url: 'https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v4.20/pip/pgadmin4-4.20-py2.py3-none-any.whl'
+      dest: /home/kevin/pgAdmin4/pgadmin4-4.20-py2.py3-none-any.whl
+      mode: '0644'
+
+  - name: install pgAdmin4 into virtual environment
+    pip:
+      name: pgadmin4-4.20-py2.py3-none-any.whl
+      virtualenv: /home/kevin/pgAdmin4-venv
+      chdir: /home/kevin/pgAdmin4/
+
+  - name: create a sudoers group
+    group:
+      name: sudoers
+      state: present
+
+  - name: add main developer to sudoers group
+    user:
+      name: "{{ username }}"
+      groups: sudoers
+      append: yes
+
+  - name: add sudoers group to the visudo file
+    lineinfile:
+      path: /etc/sudoers
+      insertafter: '# %wheel'
+      firstmatch: yes
+      line: '%sudoers ALL=(ALL) ALL'
+
+  - name: initialise the postgres database
+    command: 'initdb -D /var/lib/postgres/data'
+    become: yes
+    become_method: su
+    become_user: postgres
+
+  - name: enable and start the postgres database:
+    systemd:
+      name: postgresql
+      state: started
+      enabled: yes
+
   - name: change the hostname
     command: hostnamectl set-hostname "{{ hostname }}"
-
-
-
